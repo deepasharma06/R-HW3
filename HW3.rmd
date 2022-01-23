@@ -1,0 +1,114 @@
+```{r}
+### R Bridge Course Final Project
+
+#### Introduction:
+This is the final project for the Bridge course to demonstrate the skills learned through the 3 weeks course. The dataset “Credit Card” will be used for the analysis. The main functions will be applied to analyze the dataset such as mean(), median(), mode(), summary() as well as graphic tools (ggplot2 library).
+
+
+### Question for analysis: Does expenditure proportionally increase with income?
+
+
+###Load data and summary of the data:
+The dataset is loaded from the Github repository. Columns from 2 to 7 are used.
+
+```{r}
+install.packages("plyr")
+library(plyr)
+#Reading .csv from Github
+creditcard <- read.csv("https://raw.githubusercontent.com/deepasharma06/R-HW3/main/CreditCard.csv", 
+stringsAsFactors = FALSE)
+summary(creditcard)
+colnames(creditcard) <- c("card", "reports", "age", "income", "share", "expenditure", "owner")
+summary(creditcard)
+# Installing plyr package
+
+```
+```{r}
+# Q1: Data Exploration:
+mean_age <- mean(CreditCard[,3])
+median_age <- median(CreditCard[,3])
+mean_income <- mean(CreditCard[,4])
+median_income <- median(CreditCard[,4])
+mean_expenditure <- mean(CreditCard[,6])
+median_expenditure <- median(CreditCard[,6])
+
+print(sprintf("Mean age is %f, median age %f", mean_age, median_age))
+print(sprintf("Mean income is %f, median income %f", mean_income, median_income))
+print(sprintf("Mean expediture is %f, median expenditure %f", mean_expenditure, median_expenditure))
+
+```
+```{r}
+#Q2: Data Wrangling / creating new data frame with a new order of data
+creditcard
+CreditCard_new <- creditcard[order(creditcard$income, decreasing = TRUE),]
+```
+```{r}
+#Q2: Data Wrangling / Renaming columns
+
+names(CreditCard_new)[names(CreditCard_new)=="card"] <- "Card#"
+names(CreditCard_new)[names(CreditCard_new)=="reports"] <- "Reports"
+names(CreditCard_new)[names(CreditCard_new)=="age"] <- "Age_in_Years"
+names(CreditCard_new)[names(CreditCard_new)=="income"] <- "Income_in_1000"
+names(CreditCard_new)[names(CreditCard_new)=="expenditure"] <- "Expenditure_in_1000"
+print (CreditCard_new)
+
+```
+```{r}
+#Analyze a subset of data with a certain column value greater than a specified value (in this example, the Income_in_1000 > 50)
+CreditCard_new1 = subset(CreditCard_new, Income_in_1000>50)
+summary(CreditCard_new1)
+
+#Note: the Income_in_1000 Min value is 50.33 so the subset is correct.
+```
+```{r}
+#Q3: Install ggplot package
+installed.packages("ggplot2")
+library(ggplot2)
+```
+```{r}
+# #Q3: Scatter Plot
+ggplot(CreditCard_new1, aes(x=Income_in_1000, y=Expenditure_in_1000)) + geom_point(color="red", size = 1, alpha=1) + scale_x_continuous("Income_in_1000$") + scale_y_continuous("Expenditure_in_1000$") + theme_minimal()
+
+# Analysis: We see that the higher plots of expenditure is towards the lower income range.
+```
+```{r}
+#Q3: Boxplot / of report in the x axis and Expenditure in Y axis
+
+crop=ggplot(data=CreditCard_new1, mapping=aes(x=Reports, y=Expenditure_in_1000))+geom_boxplot()
+crop
+
+```
+```{r}
+#Q3: Adding Mean value to the Box Plot (purple point)
+
+ggplot(CreditCard_new1, aes(x=Income_in_1000, y=Expenditure_in_1000, fill = Income_in_1000)) + 
+  geom_boxplot() +
+  stat_summary(fun = "mean", geom = "point", shape = 10,
+               size = 1, color = "Purple")
+
+# The purple points shows the mean value of expenditure for each range of income. We can see that the means are higher towards the left where the income is lower.
+```
+```{r}
+#A3 - Histogram of data - Expenditure_in_1000
+
+ggplot(data = CreditCard_new1, aes(x = Income_in_1000)) + geom_histogram(bins = 10)
+```
+
+
+```{r}
+#A3 - Histogram of data - Expenditure_in_1000
+
+ggplot(data = CreditCard_new1, aes(x = Expenditure_in_1000)) + geom_histogram(bins = 10)
+```
+```{r}
+#Q4: Linera regression of expenditure and Income 
+
+ggplot(data=CreditCard_new1, aes(x=Expenditure_in_1000, y=Income_in_1000, group=1)) +
+  geom_line()+
+  geom_smooth(method='lm') 
+
+
+```
+```{r}
+###Concusion:
+Based on the linear regression plot of income vs. Expenditure, it can be seen that expediture does decrease with decreasing income but the decrease is not seen to be proportional. The decrease in expenditure is slower as compared to the decrease in income which would mean that peopel with lower income spent a higher portion of their income. This makes sense econimically because the minimum cost of living remains the same irrespective of the income level and hence people with lower income will have to spent higher percentage of their income to meet that minimum.
